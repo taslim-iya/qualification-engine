@@ -8,6 +8,7 @@ import Criteria from '@/pages/Criteria'
 import Scoring from '@/pages/Scoring'
 import CompanyDetail from '@/pages/CompanyDetail'
 import Tools from '@/pages/Tools'
+import APIKeys from '@/pages/APIKeys'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/scoring" element={<Scoring />} />
             <Route path="/company/:id" element={<CompanyDetail />} />
             <Route path="/tools" element={<Tools />} />
+            <Route path="/api-keys" element={<APIKeys />} />
           </Routes>
         </div>
       </main>

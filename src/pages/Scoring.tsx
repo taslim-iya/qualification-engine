@@ -1,7 +1,8 @@
 import { useAppStore } from '@/stores/appStore'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { Search, ArrowUpRight, Zap } from 'lucide-react'
+import { Search, ArrowUpRight, Zap, Download } from 'lucide-react'
+import { exportScoresCSV, exportScoresExcel, downloadCSV } from '@/lib/fileIO'
 
 export default function Scoring() {
   const { companies, scores, model, profiles } = useAppStore()
@@ -31,7 +32,15 @@ export default function Scoring() {
 
       {/* Scored */}
       <div>
-        <h2 className="text-sm font-medium text-[#52525B] mb-3">Scored Companies ({scores.length})</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-medium text-[#52525B]">Scored Companies ({scores.length})</h2>
+          {scores.length > 0 && (
+            <div className="flex gap-2">
+              <button onClick={() => downloadCSV(exportScoresCSV(scores, companies), 'cq_scores.csv')} className="h-8 px-3 rounded-lg border border-white/[0.08] text-xs text-[#A1A1AA] flex items-center gap-1.5 hover:bg-white/[0.04]"><Download size={12} /> CSV</button>
+              <button onClick={() => exportScoresExcel(scores, companies)} className="h-8 px-3 rounded-lg border border-white/[0.08] text-xs text-[#A1A1AA] flex items-center gap-1.5 hover:bg-white/[0.04]"><Download size={12} /> Excel</button>
+            </div>
+          )}
+        </div>
         <div className="rounded-xl border border-white/[0.06] divide-y divide-white/[0.06]">
           <div className="grid grid-cols-[60px_2fr_1fr_1fr_1fr_1fr_100px] gap-3 px-4 py-3 text-xs text-[#52525B] font-medium">
             <span>Score</span><span>Company</span><span>Fit</span><span>Need</span><span>Buyability</span><span>Band</span><span></span>

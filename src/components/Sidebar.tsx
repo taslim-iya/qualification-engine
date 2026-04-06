@@ -1,5 +1,17 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Upload, Lightbulb, Search, SlidersHorizontal, Target, Shield, Wrench } from 'lucide-react'
+import { useAppStore } from '@/stores/appStore'
+
+function SidebarStats() {
+  const { companies, scores, model, apiKeys } = useAppStore()
+  return (
+    <div className="px-4 py-3 border-t border-white/[0.06]">
+      <div className="text-[11px] text-[#3F3F46]">{model.name} v{model.version}</div>
+      <div className="text-[11px] text-[#3F3F46]">{companies.length} companies · {scores.length} scored</div>
+      <div className="text-[11px] text-[#3F3F46]">{apiKeys.length} API key{apiKeys.length !== 1 ? 's' : ''}</div>
+    </div>
+  )
+}
+import { LayoutDashboard, Upload, Lightbulb, Search, SlidersHorizontal, Target, Shield, Wrench, Key } from 'lucide-react'
 
 const sections = [
   { label: '', items: [{ to: '/', icon: LayoutDashboard, label: 'Dashboard' }] },
@@ -14,6 +26,7 @@ const sections = [
   ]},
   { label: 'System', items: [
     { to: '/tools', icon: Wrench, label: 'Tools & Pipeline' },
+    { to: '/api-keys', icon: Key, label: 'API Keys' },
   ]},
 ]
 
@@ -40,10 +53,7 @@ export default function Sidebar() {
           </div>
         ))}
       </nav>
-      <div className="px-4 py-3 border-t border-white/[0.06]">
-        <div className="text-[11px] text-[#3F3F46]">Model: Q1 2026 v1</div>
-        <div className="text-[11px] text-[#3F3F46]">8 companies · 3 scored</div>
-      </div>
+      <SidebarStats />
     </aside>
   )
 }
