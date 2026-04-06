@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Upload, Lightbulb, Search, SlidersHorizontal, Target, Shield } from 'lucide-react'
+import { LayoutDashboard, Upload, Lightbulb, Search, SlidersHorizontal, Target, Shield, Wrench } from 'lucide-react'
 
 const sections = [
   { label: '', items: [{ to: '/', icon: LayoutDashboard, label: 'Dashboard' }] },
@@ -11,6 +11,9 @@ const sections = [
   { label: 'Qualify', items: [
     { to: '/research', icon: Search, label: 'Company Research' },
     { to: '/scoring', icon: Target, label: 'Score Companies' },
+  ]},
+  { label: 'System', items: [
+    { to: '/tools', icon: Wrench, label: 'Tools & Pipeline' },
   ]},
 ]
 
