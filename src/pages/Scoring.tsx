@@ -1,12 +1,14 @@
 import { useAppStore } from '@/stores/appStore'
-import { researchCompany } from '@/lib/researchEngine'
+import { researchCompanyReal, researchCompanySimulated } from '@/lib/researchEngine'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { Search, ArrowUpRight, Zap, Download, RefreshCw, Play } from 'lucide-react'
 import { exportScoresCSV, exportScoresExcel, downloadCSV } from '@/lib/fileIO'
 
 export default function Scoring() {
-  const { companies, scores, model, profiles, addCompany, setProfile, scoreCompany } = useAppStore()
+  const { companies, scores, model, profiles, addCompany, setProfile, scoreCompany, apiKeys } = useAppStore()
+  const keys = { openai: apiKeys.find(k => k.provider === 'openai')?.key, anthropic: apiKeys.find(k => k.provider === 'anthropic')?.key, google: apiKeys.find(k => k.provider === 'google')?.key, perplexity: apiKeys.find(k => k.provider === 'perplexity')?.key, serper: apiKeys.find(k => k.provider === 'serper')?.key }
+  const hasAI = !!(keys.openai || keys.anthropic || keys.google)
   const [newName, setNewName] = useState('')
   const [newDomain, setNewDomain] = useState('')
   const [scoring, setScoring] = useState(false)
@@ -22,9 +24,18 @@ export default function Scoring() {
     if (!newName.trim()) return
     setScoring(true)
     const id = addCompany({ name: newName, domain: newDomain, linkedinUrl: '', description: '', source: 'Quick Score' })
-    await new Promise(r => setTimeout(r, 400))
-    const profile = researchCompany({ id, name: newName, domain: newDomain, linkedinUrl: '', description: '', source: 'Quick Score', createdAt: '' })
-    setProfile(id, profile)
+    const company = { id, name: newName, domain: newDomain, linkedinUrl: '', description: '', source: 'Quick Score', createdAt: '' }
+    try {
+      if (hasAI) {
+        const result = await researchCompanyReal(company, keys)
+        setProfile(id, result.profile)
+      } else {
+        await new Promise(r => setTimeout(r, 400))
+        setProfile(id, researchCompanySimulated(company))
+      }
+    } catch {
+      setProfile(id, researchCompanySimulated(company))
+    }
     await new Promise(r => setTimeout(r, 300))
     scoreCompany(id)
     setNewName('')

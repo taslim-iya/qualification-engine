@@ -1,12 +1,14 @@
 import { useParams, Link } from 'react-router-dom'
 import { useAppStore } from '@/stores/appStore'
-import { researchCompany } from '@/lib/researchEngine'
+import { researchCompanyReal, researchCompanySimulated } from '@/lib/researchEngine'
 import { ArrowLeft, ExternalLink, CheckCircle, XCircle, AlertTriangle, Play, RefreshCw, Zap } from 'lucide-react'
 import { useState } from 'react'
 
 export default function CompanyDetail() {
   const { id } = useParams()
-  const { companies, profiles, scores, model, activities, setProfile, scoreCompany } = useAppStore()
+  const { companies, profiles, scores, model, activities, setProfile, scoreCompany, apiKeys } = useAppStore()
+  const keys = { openai: apiKeys.find(k => k.provider === 'openai')?.key, anthropic: apiKeys.find(k => k.provider === 'anthropic')?.key, google: apiKeys.find(k => k.provider === 'google')?.key, perplexity: apiKeys.find(k => k.provider === 'perplexity')?.key, serper: apiKeys.find(k => k.provider === 'serper')?.key }
+  const hasAI = !!(keys.openai || keys.anthropic || keys.google)
   const company = companies.find(c => c.id === id)
   const profile = id ? profiles[id] : undefined
   const score = scores.find(s => s.companyId === id)
@@ -26,19 +28,23 @@ export default function CompanyDetail() {
 
   const handleResearch = async () => {
     setResearching(true)
-    await new Promise(r => setTimeout(r, 600))
-    const p = researchCompany(company)
-    setProfile(company.id, p)
+    try {
+      if (hasAI) {
+        const result = await researchCompanyReal(company, keys)
+        setProfile(company.id, result.profile)
+      } else {
+        await new Promise(r => setTimeout(r, 600))
+        setProfile(company.id, researchCompanySimulated(company))
+      }
+    } catch {
+      setProfile(company.id, researchCompanySimulated(company))
+    }
     setResearching(false)
   }
 
   const handleScore = async () => {
     if (!profile) {
-      setResearching(true)
-      await new Promise(r => setTimeout(r, 600))
-      const p = researchCompany(company)
-      setProfile(company.id, p)
-      setResearching(false)
+      await handleResearch()
     }
     setScoring(true)
     await new Promise(r => setTimeout(r, 400))
